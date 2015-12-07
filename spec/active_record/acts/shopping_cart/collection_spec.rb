@@ -77,25 +77,7 @@ describe ActiveRecord::Acts::ShoppingCart::Collection do
 
     it "clears all the items in the cart" do
       subject.clear
-      subject.empty?.should be_true
-    end
-  end
-
-  describe "empty?" do
-    context "cart has items" do
-      before do
-        subject.shopping_cart_items << mock
-      end
-
-      it "returns false" do
-        subject.empty?.should be_false
-      end
-    end
-
-    context "cart is empty" do
-      it "returns true" do
-        subject.empty?.should be_true
-      end
+      subject.shopping_cart_items.empty?.should be_true
     end
   end
 
