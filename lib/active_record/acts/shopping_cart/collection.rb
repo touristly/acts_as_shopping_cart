@@ -36,29 +36,32 @@ module ActiveRecord
         # Remove an item from the cart
         #
         def remove(object, quantity = 1)
-          if cart_item = item_for(object)
-            if cart_item.quantity <= quantity
-              cart_item.delete
-            else
-              cart_item.quantity = (cart_item.quantity - quantity)
-              cart_item.save
-            end
+          cart_item = item_for(object)
+
+          return unless cart_item
+
+          if cart_item.quantity <= quantity
+            cart_item.delete
+          else
+            cart_item.quantity = (cart_item.quantity - quantity)
+            cart_item.save
           end
         end
 
         #
-        # Returns the subtotal by summing the price times quantity for all the items in the cart
+        # Returns the subtotal by summing the price times quantity for all the
+        # items in the cart
         #
         def subtotal
-          ("%.2f" % shopping_cart_items.inject(0) { |sum, item| sum += (item.price * item.quantity) }).to_f
+          shopping_cart_items.inject(Money.new(0)) { |a, e| a + (e.price * e.quantity) }
         end
 
         def shipping_cost
-          0
+          Money.new(0)
         end
 
         def taxes
-          subtotal * self.tax_pct * 0.01
+          subtotal * tax_pct * 0.01
         end
 
         def tax_pct
@@ -69,19 +72,21 @@ module ActiveRecord
         # Returns the total by summing the subtotal, taxes and shipping_cost
         #
         def total
-          ("%.2f" % (self.subtotal + self.taxes + self.shipping_cost)).to_f
+          subtotal + taxes + shipping_cost
         end
 
         #
         # Return the number of unique items in the cart
         #
         def total_unique_items
-          shopping_cart_items.inject(0) { |sum, item| sum += item.quantity }
+          shopping_cart_items.map(&:quantity).sum
         end
 
         def cart_items
-          warn "ShoppingCart#cart_items WILL BE DEPRECATED IN LATER VERSIONS OF acts_as_shopping_cart, please use ShoppingCart#shopping_cart_items instead"
-          self.shopping_cart_items
+          warn "ShoppingCart#cart_items WILL BE DEPRECATED IN LATER VERSIONS OF acts_as_shopping_cart," \
+            " please use ShoppingCart#shopping_cart_items instead"
+
+          shopping_cart_items
         end
       end
     end

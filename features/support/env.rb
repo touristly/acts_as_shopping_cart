@@ -1,11 +1,21 @@
-require 'active_record'
-require 'database_cleaner'
+require "bundler/setup"
 
-$: << './lib'
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
 
-require 'acts_as_shopping_cart'
+require "active_record"
+require "database_cleaner"
+require "money-rails"
 
-require 'simplecov'
+$LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 
-SimpleCov.coverage_dir 'coverage.features'
+require "acts_as_shopping_cart"
+
+ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+
+MoneyRails::Hooks.init
+
+require "simplecov"
+
+SimpleCov.coverage_dir "coverage.features"
 SimpleCov.start
